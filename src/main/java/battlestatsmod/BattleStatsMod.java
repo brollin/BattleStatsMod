@@ -37,7 +37,7 @@ public class BattleStatsMod implements
     }
     private static final String resourcesFolder = checkResourcesPath();
     public static final Logger logger = LogManager.getLogger(modID); // Used to output to the console.
-    private static BattleStatsMod instance;
+    public static BattleStatsMod instance;
 
     public boolean showingOverlay = false;
     private boolean mouseDownRight = false;
@@ -57,6 +57,8 @@ public class BattleStatsMod implements
         Texture badgeTexture = TextureLoader.getTexture(imagePath("badge.png"));
         BaseMod.registerModBadge(badgeTexture, info.Name, GeneralUtils.arrToString(info.Authors), info.Description,
                 null);
+
+        instance.overlay = new Overlay();
     }
 
     public static String imagePath(String file) {
