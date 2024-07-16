@@ -18,7 +18,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
-    <name>Battle Stats Mod</name>
+    <name>Battle Stats</name>
     <version>0.0.0</version>
     <description>Provides post-combat statistics</description>
 
