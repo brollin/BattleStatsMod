@@ -2,17 +2,25 @@ package battlestatsmod;
 
 import basemod.BaseMod;
 import basemod.interfaces.PostInitializeSubscriber;
+import basemod.interfaces.RenderSubscriber;
 import battlestatsmod.util.GeneralUtils;
+import battlestatsmod.util.SoundHelper;
 import battlestatsmod.util.TextureLoader;
 
 import com.badlogic.gdx.Files;
 import com.badlogic.gdx.backends.lwjgl.LwjglFileHandle;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.evacipated.cardcrawl.modthespire.Loader;
 import com.evacipated.cardcrawl.modthespire.ModInfo;
 import com.evacipated.cardcrawl.modthespire.Patcher;
 import com.evacipated.cardcrawl.modthespire.lib.SpireInitializer;
+import com.megacrit.cardcrawl.core.CardCrawlGame;
+import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
+import com.megacrit.cardcrawl.helpers.input.InputHelper;
+import com.megacrit.cardcrawl.rooms.AbstractRoom;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.scannotation.AnnotationDB;
@@ -21,7 +29,7 @@ import java.util.*;
 
 @SpireInitializer
 public class BattleStatsMod implements
-        PostInitializeSubscriber {
+        PostInitializeSubscriber, RenderSubscriber {
     public static ModInfo info;
     public static String modID;
     static {
@@ -29,9 +37,14 @@ public class BattleStatsMod implements
     }
     private static final String resourcesFolder = checkResourcesPath();
     public static final Logger logger = LogManager.getLogger(modID); // Used to output to the console.
+    private static BattleStatsMod instance;
+
+    public boolean showingOverlay = false;
+    private boolean mouseDownRight = false;
+    private Overlay overlay;
 
     public static void initialize() {
-        new BattleStatsMod();
+        instance = new BattleStatsMod();
     }
 
     public BattleStatsMod() {
@@ -42,9 +55,6 @@ public class BattleStatsMod implements
     @Override
     public void receivePostInitialize() {
         Texture badgeTexture = TextureLoader.getTexture(imagePath("badge.png"));
-        // If you want to set up a config panel, that will be done here.
-        // The Mod Badges page has a basic example of this, but setting up config is
-        // overall a bit complex.
         BaseMod.registerModBadge(badgeTexture, info.Name, GeneralUtils.arrToString(info.Authors), info.Description,
                 null);
     }
@@ -92,6 +102,51 @@ public class BattleStatsMod implements
             modID = info.ID;
         } else {
             throw new RuntimeException("Failed to determine mod info/ID based on initializer.");
+        }
+    }
+
+    // RenderSubscriber ------------------------------
+
+    @Override
+    public void receiveRender(SpriteBatch sb) {
+        if (CardCrawlGame.isInARun() && this.showingOverlay) {
+            instance.overlay.render(sb);
+        }
+    }
+
+    private void handleRightClick() {
+        if (this.showingOverlay) {
+            SoundHelper.closeSound();
+            this.showingOverlay = false;
+            return;
+        }
+
+        AbstractRoom room = AbstractDungeon.getCurrRoom();
+        if (room != null) {
+            openOverlay();
+        }
+    }
+
+    private void openOverlay() {
+        SoundHelper.openSound();
+        // TODO: prepare for being opened
+        this.showingOverlay = true;
+    }
+
+    public static void update() {
+        if (!CardCrawlGame.isInARun()) {
+            return;
+        }
+
+        if (InputHelper.isMouseDown_R) {
+            instance.mouseDownRight = true;
+        } else {
+            // We already had the mouse down, and now we released, so fire our right click
+            // event
+            if (instance.mouseDownRight) {
+                instance.handleRightClick();
+                instance.mouseDownRight = false;
+            }
         }
     }
 }
