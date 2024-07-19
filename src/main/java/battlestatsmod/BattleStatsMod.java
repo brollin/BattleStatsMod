@@ -28,6 +28,7 @@ import com.evacipated.cardcrawl.modthespire.Patcher;
 import com.evacipated.cardcrawl.modthespire.lib.SpireInitializer;
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.cards.DamageInfo;
+import com.megacrit.cardcrawl.characters.AbstractPlayer;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.helpers.input.InputHelper;
@@ -47,15 +48,27 @@ public class BattleStatsMod implements
         PostPotionUseSubscriber, PreMonsterTurnSubscriber, PostBattleSubscriber, OnStartBattleSubscriber,
         PostDrawSubscriber, PostExhaustSubscriber, OnPlayerDamagedSubscriber, OnPlayerLoseBlockSubscriber {
     private void saveTurnData() {
+        AbstractPlayer player = AbstractDungeon.player;
         try {
-            combatData.getCurrentTurn().playerStrength = AbstractDungeon.player.getPower("Strength").amount;
-            combatData.getCurrentTurn().playerDexterity = AbstractDungeon.player.getPower("Dexterity").amount;
-            combatData.getCurrentTurn().playerFocus = AbstractDungeon.player.getPower("Focus").amount;
-            combatData.getCurrentTurn().enemyHealthRemaining = AbstractDungeon.getMonsters().monsters
-                    .get(0).currentHealth;
-            combatData.getCurrentTurn().enemyBlockGenerated = AbstractDungeon.getMonsters().monsters
-                    .get(0).currentBlock;
-            combatData.getCurrentTurn().playerHealthRemaining = AbstractDungeon.player.currentHealth;
+            combatData.getCurrentTurn().playerStrength = player.hasPower("Strength")
+                    ? player.getPower("Strength").amount
+                    : 0;
+            combatData.getCurrentTurn().playerDexterity = player.hasPower("Dexterity")
+                    ? player.getPower("Dexterity").amount
+                    : 0;
+            combatData.getCurrentTurn().playerFocus = player.hasPower("Focus") ? player.getPower("Focus").amount : 0;
+            combatData.getCurrentTurn().playerHealthRemaining = player.currentHealth;
+
+            // loop through all monsters
+            for (AbstractMonster m : AbstractDungeon.getMonsters().monsters) {
+                // combatData.getCurrentTurn().enemyDamageReceived += m.damage;
+                // combatData.getCurrentTurn().enemyBlockGenerated += m.currentBlock;
+                // combatData.getCurrentTurn().enemyHealthLost += m.maxHealth - m.currentHealth;
+                // combatData.getCurrentTurn().enemyHealthGained += m.currentHealth -
+                // m.maxHealth;
+                combatData.getCurrentTurn().enemyHealthRemaining += m.currentHealth;
+                combatData.getCurrentTurn().enemyBlockGenerated += m.currentBlock;
+            }
         } catch (Exception e) {
             logger.error("Error in saveTurnData: " + e.getMessage());
         }
@@ -66,7 +79,7 @@ public class BattleStatsMod implements
     public void receiveOnBattleStart(AbstractRoom r) {
         logger.info(modID + " received OnBattleStart.");
         this.combatData = new CombatData();
-        combatData.addNewTurn(); // turn 0
+        combatData.addNewTurn(); // turn 0; captures starting state of the battle
     }
 
     // OnPlayerTurnStartSubscriber ------------------------------
@@ -239,7 +252,7 @@ public class BattleStatsMod implements
 
     private void openOverlay() {
         SoundHelper.openSound();
-        // TODO: prepare for being opened
+        instance.overlay.update(combatData);
         this.showingOverlay = true;
     }
 

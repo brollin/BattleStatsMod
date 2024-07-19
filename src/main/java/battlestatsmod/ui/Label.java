@@ -3,7 +3,6 @@ package battlestatsmod.ui;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.helpers.FontHelper;
 
 public class Label {
@@ -22,11 +21,15 @@ public class Label {
         this.color = color;
 
         this.textHeight = font.getLineHeight();
-        this.textWidth = FontHelper.getSmartWidth(font, text, 100000, 30) / Settings.scale;
+        this.textWidth = FontHelper.getSmartWidth(font, text, 100000, 30);
+        // this.textWidth = FontHelper.getSmartWidth(font, text, 100000, 30) /
+        // Settings.scale;
     }
 
     public void render(SpriteBatch sb) {
-        FontHelper.renderFontLeftDownAligned(sb, font, text, x * Settings.scale, y * Settings.scale, color);
+        FontHelper.renderFontLeftDownAligned(sb, font, text, x, y, color);
+        // FontHelper.renderFontLeftDownAligned(sb, font, text, x * Settings.scale, y *
+        // Settings.scale, color);
     }
 
     public float getTextWidth() {

@@ -3,12 +3,12 @@ package battlestatsmod;
 import static battlestatsmod.BattleStatsMod.imagePath;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.megacrit.cardcrawl.core.Settings;
-import com.megacrit.cardcrawl.helpers.FontHelper;
 import com.megacrit.cardcrawl.helpers.ImageMaster;
 
 import battlestatsmod.ui.Label;
@@ -17,20 +17,25 @@ import battlestatsmod.util.TextureLoader;
 
 public class Overlay {
     private static final Texture TEX_BG = TextureLoader.getTexture(imagePath("screen.png"));
-    public static final float startX = (Settings.WIDTH - (TEX_BG.getWidth() * Settings.scale)) * 0.5f;
-    public static final float startY = (Settings.HEIGHT - (TEX_BG.getHeight() * Settings.scale)) * 0.5f;
+    public static final float leftX = (Settings.WIDTH - (TEX_BG.getWidth() * Settings.scale)) * 0.5f;
+    public static final float bottomY = (Settings.HEIGHT - (TEX_BG.getHeight() * Settings.scale)) * 0.5f;
+    public static final float topY = bottomY + TEX_BG.getHeight() * Settings.scale;
+
+    public static final float paddingY = 50.0f;
+    public static final float paddingX = 50.0f;
+
+    public static final float contentLeftX = leftX + paddingX;
+    public static final float contentTopY = topY - paddingY;
 
     private ArrayList<Label> labels = new ArrayList<>();
 
-    public Overlay() {
+    public void update(CombatData combatData) {
+        labels = new ArrayList<Label>();
+        labels.addAll(Arrays.asList(TurnRow.getHeaderLabels(contentLeftX, contentTopY)));
 
-        for (float i = 0.0f; i <= 10.0f; i += 1.0f) {
-            for (float j = 0.0f; j <= 10.0f; j += 1.0f) {
-                float x = startX + i * 400.0f;
-                float y = startY + j * 80.0f;
-
-                this.labels.add(new Label("(" + x + ", " + y + ")", FontHelper.tipBodyFont, x, y, Color.WHITE));
-            }
+        for (int i = 0; i < combatData.turns.size(); i++) {
+            TurnData turnData = combatData.turns.get(i);
+            labels.addAll(Arrays.asList(TurnRow.getLabels(i, turnData, contentLeftX, contentTopY)));
         }
     }
 
@@ -40,8 +45,8 @@ public class Overlay {
 
         sb.setColor(Color.WHITE);
         sb.draw(TEX_BG,
-                startX,
-                startY,
+                leftX,
+                bottomY,
                 TEX_BG.getWidth() * Settings.scale,
                 TEX_BG.getHeight() * Settings.scale);
     }
