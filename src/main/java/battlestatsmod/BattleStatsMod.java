@@ -1,7 +1,17 @@
 package battlestatsmod;
 
 import basemod.BaseMod;
+import basemod.interfaces.OnCardUseSubscriber;
+import basemod.interfaces.OnPlayerDamagedSubscriber;
+import basemod.interfaces.OnPlayerLoseBlockSubscriber;
+import basemod.interfaces.OnPlayerTurnStartSubscriber;
+import basemod.interfaces.OnStartBattleSubscriber;
+import basemod.interfaces.PostBattleSubscriber;
+import basemod.interfaces.PostDrawSubscriber;
+import basemod.interfaces.PostExhaustSubscriber;
 import basemod.interfaces.PostInitializeSubscriber;
+import basemod.interfaces.PostPotionUseSubscriber;
+import basemod.interfaces.PreMonsterTurnSubscriber;
 import basemod.interfaces.RenderSubscriber;
 import battlestatsmod.util.GeneralUtils;
 import battlestatsmod.util.SoundHelper;
@@ -16,9 +26,13 @@ import com.evacipated.cardcrawl.modthespire.Loader;
 import com.evacipated.cardcrawl.modthespire.ModInfo;
 import com.evacipated.cardcrawl.modthespire.Patcher;
 import com.evacipated.cardcrawl.modthespire.lib.SpireInitializer;
+import com.megacrit.cardcrawl.cards.AbstractCard;
+import com.megacrit.cardcrawl.cards.DamageInfo;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.helpers.input.InputHelper;
+import com.megacrit.cardcrawl.monsters.AbstractMonster;
+import com.megacrit.cardcrawl.potions.AbstractPotion;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
 
 import org.apache.logging.log4j.LogManager;
@@ -29,7 +43,100 @@ import java.util.*;
 
 @SpireInitializer
 public class BattleStatsMod implements
-        PostInitializeSubscriber, RenderSubscriber {
+        PostInitializeSubscriber, RenderSubscriber, OnPlayerTurnStartSubscriber, OnCardUseSubscriber,
+        PostPotionUseSubscriber, PreMonsterTurnSubscriber, PostBattleSubscriber, OnStartBattleSubscriber,
+        PostDrawSubscriber, PostExhaustSubscriber, OnPlayerDamagedSubscriber, OnPlayerLoseBlockSubscriber {
+    private void saveTurnData() {
+        try {
+            combatData.getCurrentTurn().playerStrength = AbstractDungeon.player.getPower("Strength").amount;
+            combatData.getCurrentTurn().playerDexterity = AbstractDungeon.player.getPower("Dexterity").amount;
+            combatData.getCurrentTurn().playerFocus = AbstractDungeon.player.getPower("Focus").amount;
+            combatData.getCurrentTurn().enemyHealthRemaining = AbstractDungeon.getMonsters().monsters
+                    .get(0).currentHealth;
+            combatData.getCurrentTurn().enemyBlockGenerated = AbstractDungeon.getMonsters().monsters
+                    .get(0).currentBlock;
+            combatData.getCurrentTurn().playerHealthRemaining = AbstractDungeon.player.currentHealth;
+        } catch (Exception e) {
+            logger.error("Error in saveTurnData: " + e.getMessage());
+        }
+    }
+
+    // OnStartBattleSubscriber ------------------------------
+    @Override
+    public void receiveOnBattleStart(AbstractRoom r) {
+        logger.info(modID + " received OnBattleStart.");
+        this.combatData = new CombatData();
+        combatData.addNewTurn(); // turn 0
+    }
+
+    // OnPlayerTurnStartSubscriber ------------------------------
+    @Override
+    public void receiveOnPlayerTurnStart() {
+        logger.info(modID + " received OnPlayerTurnStart.");
+        // save data for prior turn
+        saveTurnData();
+        combatData.addNewTurn();
+    }
+
+    // PostDrawSubscriber ------------------------------
+    @Override
+    public void receivePostDraw(AbstractCard c) {
+        logger.info(modID + " received PostDraw: " + c.cardID);
+        combatData.getCurrentTurn().cardsDrawn.add(MinimalCard.fromCard(c));
+    }
+
+    // OnCardUseSubscriber ------------------------------
+    @Override
+    public void receiveCardUsed(AbstractCard card) {
+        logger.info(modID + " received CardUsed: " + card.cardID);
+        combatData.getCurrentTurn().cardsPlayed.add(MinimalCard.fromCard(card));
+    }
+
+    // PostExhaustSubscriber ------------------------------
+    @Override
+    public void receivePostExhaust(AbstractCard c) {
+        logger.info(modID + " received PostExhaust: " + c.cardID);
+        combatData.getCurrentTurn().cardsExhausted.add(MinimalCard.fromCard(c));
+    }
+
+    // PostPotionUseSubscriber ------------------------------
+    @Override
+    public void receivePostPotionUse(AbstractPotion potion) {
+        logger.info(modID + " received PostPotionUse: " + potion.name);
+        combatData.getCurrentTurn().potionsUsed.add(potion.ID);
+    }
+
+    // PreMonsterTurnSubscriber ------------------------------
+    @Override
+    public boolean receivePreMonsterTurn(AbstractMonster m) {
+        logger.info(modID + " received PreMonsterTurn: " + m.id);
+        return true;
+    }
+
+    // OnPlayerDamagedSubscriber ------------------------------
+    @Override
+    public int receiveOnPlayerDamaged(int damageAmount, DamageInfo info) {
+        logger.info(modID + " received OnPlayerDamaged: " + damageAmount);
+        combatData.getCurrentTurn().playerDamageReceived += damageAmount;
+        return damageAmount;
+    }
+
+    // OnPlayerLoseBlockSubscriber ------------------------------
+    @Override
+    public int receiveOnPlayerLoseBlock(int blockAmount) {
+        logger.info(modID + " received OnPlayerLoseBlock: " + blockAmount);
+        return blockAmount;
+    }
+
+    // PostBattleSubscriber ------------------------------
+    @Override
+    public void receivePostBattle(AbstractRoom r) {
+        logger.info(modID + " received PostBattle.");
+        saveTurnData();
+        // TODO: only calculate this if stats are viewed
+        combatData.calculateTotals();
+    }
+
     public static ModInfo info;
     public static String modID;
     static {
@@ -42,6 +149,7 @@ public class BattleStatsMod implements
     public boolean showingOverlay = false;
     private boolean mouseDownRight = false;
     private Overlay overlay;
+    private CombatData combatData = new CombatData();
 
     public static void initialize() {
         instance = new BattleStatsMod();
@@ -151,4 +259,5 @@ public class BattleStatsMod implements
             }
         }
     }
+
 }

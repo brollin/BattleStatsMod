@@ -8,7 +8,9 @@ Logan is a good boy and a powerful ally. Now, you can Slay the Spire with Logan'
 
 # Battle Stats
 
-A Slay the Spire mod that provides a post-combat statistic screen.
+A Slay the Spire mod that provides a post-combat statistics screen.
+
+[WORK IN PROGRESS]
 
 ## Installation
 
