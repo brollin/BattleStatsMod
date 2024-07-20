@@ -180,6 +180,7 @@ public class BattleStatsMod implements
                 null);
 
         instance.overlay = new Overlay();
+        TurnRow.initialize();
     }
 
     public static String imagePath(String file) {
@@ -252,7 +253,8 @@ public class BattleStatsMod implements
 
     private void openOverlay() {
         SoundHelper.openSound();
-        instance.overlay.update(combatData);
+        saveTurnData();
+        overlay.update(combatData);
         this.showingOverlay = true;
     }
 

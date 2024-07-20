@@ -9,9 +9,9 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.megacrit.cardcrawl.core.Settings;
+import com.megacrit.cardcrawl.helpers.AbstractDrawable;
 import com.megacrit.cardcrawl.helpers.ImageMaster;
 
-import battlestatsmod.ui.Label;
 import battlestatsmod.util.ColorHelper;
 import battlestatsmod.util.TextureLoader;
 
@@ -27,15 +27,15 @@ public class Overlay {
     public static final float contentLeftX = leftX + paddingX;
     public static final float contentTopY = topY - paddingY;
 
-    private ArrayList<Label> labels = new ArrayList<>();
+    private ArrayList<AbstractDrawable> drawableElements = new ArrayList<>();
 
     public void update(CombatData combatData) {
-        labels = new ArrayList<Label>();
-        labels.addAll(Arrays.asList(TurnRow.getHeaderLabels(contentLeftX, contentTopY)));
+        drawableElements = new ArrayList<AbstractDrawable>();
+        drawableElements.addAll(TurnRow.getHeaderElements(contentLeftX, contentTopY));
 
         for (int i = 0; i < combatData.turns.size(); i++) {
             TurnData turnData = combatData.turns.get(i);
-            labels.addAll(Arrays.asList(TurnRow.getLabels(i, turnData, contentLeftX, contentTopY)));
+            drawableElements.addAll(Arrays.asList(TurnRow.getElements(i, turnData, contentLeftX, contentTopY)));
         }
     }
 
@@ -52,8 +52,8 @@ public class Overlay {
     }
 
     private void renderForeground(SpriteBatch sb) {
-        for (Label l : labels)
-            l.render(sb);
+        for (AbstractDrawable element : drawableElements)
+            element.render(sb);
     }
 
     public void render(SpriteBatch sb) {

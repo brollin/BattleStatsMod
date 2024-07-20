@@ -3,9 +3,10 @@ package battlestatsmod.ui;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.megacrit.cardcrawl.helpers.AbstractDrawable;
 import com.megacrit.cardcrawl.helpers.FontHelper;
 
-public class Label {
+public class Label extends AbstractDrawable {
     protected String text;
     protected BitmapFont font;
     protected float x, y;
