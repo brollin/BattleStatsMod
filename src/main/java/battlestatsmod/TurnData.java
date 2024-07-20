@@ -19,7 +19,8 @@ public class TurnData {
     public int playerHealthGained = 0;
     public int playerHealthRemaining = 0;
 
-    public int playerEnergySpent = 0;
+    public int playerEnergyGained = 0;
+    public int playerEnergyUsed = 0;
     public int playerFocus = 0;
 
     public ArrayList<MinimalCard> cardsDrawn = new ArrayList<>();

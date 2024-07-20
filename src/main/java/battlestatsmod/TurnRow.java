@@ -16,8 +16,8 @@ public class TurnRow {
         public static String strengthTexturePath = "48/strength";
         public static String dexterityTexturePath = "48/dexterity";
 
-        public static final int DEFAULT_CELL_WIDTH = 110;
-        public static final int HORIZONTAL_GAP = 10;
+        public static final int DEFAULT_CELL_WIDTH = 100;
+        public static final int HORIZONTAL_GAP = 15;
         public static final int ROW_HEIGHT = 40;
         public static final int LINE_HEIGHT = 35;
         public static final int HEADER_ROW_SIZE = 3;
@@ -57,11 +57,11 @@ public class TurnRow {
                                 new DataCell("Player Dexterity", dexterityTexturePath,
                                                 Integer.toString(t.playerDexterity),
                                                 48, 48),
-                                new DataCell("Dmg Rcvd", null,
+                                new DataCell("NL Dmg Rcvd", null,
                                                 Integer.toString(t.playerDamageReceived),
                                                 DEFAULT_CELL_WIDTH,
                                                 ROW_HEIGHT),
-                                new DataCell("Player Block", null,
+                                new DataCell("NL Player Block", null,
                                                 Integer.toString(t.playerBlockGenerated),
                                                 DEFAULT_CELL_WIDTH,
                                                 ROW_HEIGHT),
@@ -71,31 +71,36 @@ public class TurnRow {
                                 new DataCell("Player Health Lost", null, Integer.toString(t.playerHealthLost),
                                                 DEFAULT_CELL_WIDTH,
                                                 ROW_HEIGHT),
-                                new DataCell("Player Health Gained", null, Integer.toString(t.playerHealthGained),
-                                                DEFAULT_CELL_WIDTH,
-                                                ROW_HEIGHT),
+                                // new DataCell("Player Health Gained", null,
+                                // Integer.toString(t.playerHealthGained),
+                                // DEFAULT_CELL_WIDTH,
+                                // ROW_HEIGHT),
                                 new DataCell("Player Health Left", null,
                                                 Integer.toString(t.playerHealthRemaining),
                                                 DEFAULT_CELL_WIDTH, ROW_HEIGHT),
-                                new DataCell("Energy Used", null, Integer.toString(t.playerEnergySpent),
+                                new DataCell("NL Energy Gained", null, Integer.toString(t.playerEnergyGained),
+                                                DEFAULT_CELL_WIDTH,
+                                                ROW_HEIGHT),
+                                new DataCell("NL Energy Used", null, Integer.toString(t.playerEnergyUsed),
                                                 DEFAULT_CELL_WIDTH,
                                                 ROW_HEIGHT),
                                 // new DataCell("Player Focus",null, Integer.toString(data.playerFocus),
                                 // DEFAULT_CELL_WIDTH,
                                 // ROW_HEIGHT),
-                                new DataCell("Cards Drawn", null, Integer.toString(t.cardsDrawn.size()),
+                                new DataCell("NL Cards Drawn", null, Integer.toString(t.cardsDrawn.size()),
                                                 DEFAULT_CELL_WIDTH,
                                                 ROW_HEIGHT),
-                                new DataCell("Cards Played", null, Integer.toString(t.cardsPlayed.size()),
+                                new DataCell("NL Cards Played", null, Integer.toString(t.cardsPlayed.size()),
                                                 DEFAULT_CELL_WIDTH,
                                                 ROW_HEIGHT),
-                                new DataCell("Cards Dis- carded", null, Integer.toString(t.cardsDiscarded.size()),
+                                // new DataCell("Cards Disca- rded", null,
+                                // Integer.toString(t.cardsDiscarded.size()),
+                                // DEFAULT_CELL_WIDTH,
+                                // ROW_HEIGHT),
+                                new DataCell("Cards Exhau- sted", null, Integer.toString(t.cardsExhausted.size()),
                                                 DEFAULT_CELL_WIDTH,
                                                 ROW_HEIGHT),
-                                new DataCell("Cards Ex- hausted", null, Integer.toString(t.cardsExhausted.size()),
-                                                DEFAULT_CELL_WIDTH,
-                                                ROW_HEIGHT),
-                                new DataCell("Potions Used", null, Integer.toString(t.potionsUsed.size()),
+                                new DataCell("NL Potions Used", null, Integer.toString(t.potionsUsed.size()),
                                                 DEFAULT_CELL_WIDTH,
                                                 ROW_HEIGHT)
                 };
@@ -121,7 +126,7 @@ public class TurnRow {
                 for (int i = 0; i < cells.length; i++) {
                         DataCell cell = cells[i];
                         if (cell.texturePath != null) {
-                                headerElements.add(new Icon(cell.texturePath, currentX, currentY - LINE_HEIGHT));
+                                headerElements.add(new Icon(cell.texturePath, currentX, currentY - 3 * LINE_HEIGHT));
                         } else {
                                 headerElements.add(
                                                 new SmartLabel(cell.header, FontHelper.tipBodyFont, currentX, currentY,

@@ -14,6 +14,13 @@ public class CombatData {
         return turns.get(turns.size() - 1);
     }
 
+    public TurnData getPreviousTurn() {
+        if (turns.size() > 1) {
+            return turns.get(turns.size() - 2);
+        }
+        return null;
+    }
+
     public void calculateTotals() {
         for (TurnData turn : turns) {
             turnTotals.playerStrength += turn.playerStrength;
@@ -32,7 +39,7 @@ public class CombatData {
             turnTotals.playerHealthGained += turn.playerHealthGained;
             turnTotals.playerHealthRemaining += turn.playerHealthRemaining;
 
-            turnTotals.playerEnergySpent += turn.playerEnergySpent;
+            turnTotals.playerEnergyUsed += turn.playerEnergyUsed;
             turnTotals.playerFocus += turn.playerFocus;
 
             turnTotals.cardsDrawn.addAll(turn.cardsDrawn);

@@ -49,25 +49,30 @@ public class BattleStatsMod implements
         PostDrawSubscriber, PostExhaustSubscriber, OnPlayerDamagedSubscriber, OnPlayerLoseBlockSubscriber {
     private void saveTurnData() {
         AbstractPlayer player = AbstractDungeon.player;
+        TurnData currentTurn = combatData.getCurrentTurn();
+        TurnData previousTurn = combatData.getPreviousTurn();
         try {
-            combatData.getCurrentTurn().playerStrength = player.hasPower("Strength")
+            currentTurn.playerStrength = player.hasPower("Strength")
                     ? player.getPower("Strength").amount
                     : 0;
-            combatData.getCurrentTurn().playerDexterity = player.hasPower("Dexterity")
+            currentTurn.playerDexterity = player.hasPower("Dexterity")
                     ? player.getPower("Dexterity").amount
                     : 0;
-            combatData.getCurrentTurn().playerFocus = player.hasPower("Focus") ? player.getPower("Focus").amount : 0;
-            combatData.getCurrentTurn().playerHealthRemaining = player.currentHealth;
+            currentTurn.playerFocus = player.hasPower("Focus") ? player.getPower("Focus").amount : 0;
+            currentTurn.playerHealthRemaining = player.currentHealth;
+            if (previousTurn != null) {
+                currentTurn.playerHealthLost = previousTurn.playerHealthRemaining - player.currentHealth;
+            }
 
             // loop through all monsters
             for (AbstractMonster m : AbstractDungeon.getMonsters().monsters) {
-                // combatData.getCurrentTurn().enemyDamageReceived += m.damage;
-                // combatData.getCurrentTurn().enemyBlockGenerated += m.currentBlock;
-                // combatData.getCurrentTurn().enemyHealthLost += m.maxHealth - m.currentHealth;
-                // combatData.getCurrentTurn().enemyHealthGained += m.currentHealth -
+                // currentTurn.enemyDamageReceived += m.damage;
+                // currentTurn.enemyBlockGenerated += m.currentBlock;
+                // currentTurn.enemyHealthLost += m.maxHealth - m.currentHealth;
+                // currentTurn.enemyHealthGained += m.currentHealth -
                 // m.maxHealth;
-                combatData.getCurrentTurn().enemyHealthRemaining += m.currentHealth;
-                combatData.getCurrentTurn().enemyBlockGenerated += m.currentBlock;
+                currentTurn.enemyHealthRemaining += m.currentHealth;
+                currentTurn.enemyBlockGenerated += m.currentBlock;
             }
         } catch (Exception e) {
             logger.error("Error in saveTurnData: " + e.getMessage());
@@ -162,7 +167,7 @@ public class BattleStatsMod implements
     public boolean showingOverlay = false;
     private boolean mouseDownRight = false;
     private Overlay overlay;
-    private CombatData combatData = new CombatData();
+    public CombatData combatData = new CombatData();
 
     public static void initialize() {
         instance = new BattleStatsMod();
