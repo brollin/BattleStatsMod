@@ -65,12 +65,9 @@ public class BattleStatsMod implements
             }
 
             // loop through all monsters
+            currentTurn.enemyHealthRemaining = 0;
+            currentTurn.enemyBlockGenerated = 0;
             for (AbstractMonster m : AbstractDungeon.getMonsters().monsters) {
-                // currentTurn.enemyDamageReceived += m.damage;
-                // currentTurn.enemyBlockGenerated += m.currentBlock;
-                // currentTurn.enemyHealthLost += m.maxHealth - m.currentHealth;
-                // currentTurn.enemyHealthGained += m.currentHealth -
-                // m.maxHealth;
                 currentTurn.enemyHealthRemaining += m.currentHealth;
                 currentTurn.enemyBlockGenerated += m.currentBlock;
             }

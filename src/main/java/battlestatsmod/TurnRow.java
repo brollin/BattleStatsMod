@@ -126,7 +126,7 @@ public class TurnRow {
                 for (int i = 0; i < cells.length; i++) {
                         DataCell cell = cells[i];
                         if (cell.texturePath != null) {
-                                headerElements.add(new Icon(cell.texturePath, currentX, currentY - 3 * LINE_HEIGHT));
+                                headerElements.add(new Icon(cell.texturePath, currentX, currentY - 2.5 * LINE_HEIGHT));
                         } else {
                                 headerElements.add(
                                                 new SmartLabel(cell.header, FontHelper.tipBodyFont, currentX, currentY,
